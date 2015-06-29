@@ -15,7 +15,7 @@ IGNOREIPS=""
 RESULT=""
 INTERVAL=0
 CONFIG=""
-WGET=$(which wget)
+WGET="/usr/bin/wget"
 
 if [ -f "/etc/no-ip/no-ip.conf" ]
 then
