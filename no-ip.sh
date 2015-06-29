@@ -1,14 +1,21 @@
 #!/bin/bash 
 
+# NO-IP Update Client
+# A shell script that works as Dynamic Update Client (DUC) for noip.com
+# http://techlife.blaize.net/2015/03/17/no-ip-dynamic-update-client-duc-with-shell-scripts-and-or-cron-jobs/
+# https://github.com/theonemule/no-ip
+
 USER=""
 PASSWORD=""
 HOSTNAME=""
 LOGFILE=""
 DETECTIP=""
 IP=""
+IGNOREIPS=""
 RESULT=""
 INTERVAL=0
 CONFIG=""
+WGET=$(which wget)
 
 if [ -f "/etc/no-ip/no-ip.conf" ]
 then
@@ -35,6 +42,9 @@ do
 		;;
 		-i=*|--ip=*)
 		IP="${i#*=}"
+		;;
+		-g=*|--ignore=*)
+		IGNOREIPS="${i#*=}"
 		;;
 		-n=*|--interval=*)
 		INTERVAL="${i#*=}"
@@ -71,6 +81,9 @@ then
 			;;
 			ip=*)
 			IP="${line#*=}"
+			;;
+			ignoreips=*)
+			IGNOREIPS="${line#*=}"
 			;;
 			interval=*)
 			INTERVAL="${line#*=}"
@@ -109,7 +122,7 @@ fi
 
 if [ -n "$DETECTIP" ]
 then
-	IP=$(wget -qO- "http://myexternalip.com/raw")
+	IP=$($WGET -qO- "http://myexternalip.com/raw")
 fi
 
 
@@ -125,6 +138,15 @@ then
 	exit 35
 fi
 
+
+if [ -n "$IP" ] && [ -n "$IGNOREIPS" ]
+then
+	if [[ "$IGNOREIPS" == *"$IP"* ]]
+	then
+		echo "IP update ignored"
+		exit 0
+	fi
+fi
 
 USERAGENT="--user-agent=\"no-ip shell script/1.0 mail@mail.com\""
 BASE64AUTH=$(echo '"$USER:$PASSWORD"' | base64)
@@ -151,11 +173,10 @@ then
 	NOIPURL="${NOIPURL}myip=$IP"
 fi
 
-
 while :
 do
 
-	RESULT=$(wget -qO- $AUTHHEADER $USERAGENT $NOIPURL)
+	RESULT=$($WGET -qO- $AUTHHEADER $USERAGENT $NOIPURL)
 
 	if [ -z "$RESULT" ] && [ $? -ne 0 ]
 	then

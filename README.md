@@ -39,6 +39,10 @@ Tells the script to detect your external IP address. This takes precedence over 
 
     -i, --ip
 
+Set a list of IPs to ignore
+
+    -g, --ignore
+
 Maually sets the IP address to update. If neither -d or -i are specified, no-ip will use the IP address it detects.
 
     -n, --interval
@@ -85,6 +89,7 @@ Example:
     password=password 
     hostname=hostname.example.com
     logfile=/var/log/no-ip.log
+    ignoreips="10.0.0.0 10.0.0.1"
     interval=10
     detectip=true
 
