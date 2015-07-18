@@ -126,7 +126,7 @@ then
 fi
 
 
-if [ -n "$DETECTIP" ] && [ -z $IP ]
+if [ -n "$DETECTIP" ] && [ -z "$IP" ]
 then
 	RESULT="Could not detect external IP."
 fi
